@@ -45,9 +45,18 @@ jobs:
 workflows:
   version: 2
   build-deploy:
+    triggers:
+      - schedule:
+          cron: "0 0 0 1 1 ? 1970"
+          filters:
+            branches:
+              only:
+                - master
     jobs:
-      - build
+      - build:
+          context: org-global
       - deploy:
+          context: org-global
           requires:
             - build
           filters:
