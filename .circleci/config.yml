@@ -48,6 +48,10 @@ workflows:
     triggers:
       - schedule:
           cron: "0 0 0 1 1 ? 2019"
+          filters:
+            branches:
+              only:
+                - master
     jobs:
       - build:
           context: org-global
