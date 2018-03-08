@@ -1,0 +1,44 @@
+{
+  "s3": {
+    "awsRegion": "ap-southeast-2",
+    "keyPrefix": "XXXX/XXXXXX",
+    "billingBucketName": "XXXXXXXXX",
+    "reportFileName": "XXXXXXXXX.csv.gz",
+    "manifestFileName": "XXXXXXXXX-Manifest.json"
+  },
+  "converter": {
+    "converterUrl": "https://api.fixer.io/latest?base=AUD&symbols=USD",
+    "currencySymbol" : "AUD $",
+    "converterDefaultRate": 1,
+    "converterDefaultCurrency" : "USD $"
+  },
+  "slack": {
+    "webhookUri": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "botName": "Scrooge Bot",
+    "messageTitle": "AWS Services bill of the current month",
+    "messageTitleLink": "https://console.aws.amazon.com/billing/home#/",
+    "channel": "#XXXXXXXXX",
+    "dangerIcon": "http://www.thelibrarypolice.com/uploads/1/4/0/6/14066006/published/warning.png",
+    "footerTitle": "Check out more at\nhttps://console.aws.amazon.com/billing/home#/",
+    "footer": "I'm an AWS lambda. If you want to modify me, please update here:\nhttps://github.com/octo-technology-downunder",
+    "footerColor": "#FFFFFF",
+    "footerIcon": "https://a.slack-edge.com/f30f/img/services/api_200.png",
+    "colorDanger" : "danger",
+    "colorWarning" : "warning",
+    "colorGood" : "good",
+    "colorOther" : "##FFFC2D",
+    "messageEmoji": ":scrooge:",
+    "overspentMessage": "@here *Some services exceed their cost limits (red items below)!*"
+  },
+  "csv": {
+    "amountColumnName": "lineItem/BlendedCost",
+    "serviceColumnName": "product/ProductName"
+  },
+  "thresholds" : {"services" : [
+    {"serviceName" : "Amazon Elastic Compute Cloud", "limit" : 200},
+    {"serviceName" : "Amazon Relational Database Service", "limit" : 150},
+    {"serviceName" : "Amazon DynamoDB", "limit" : 50}],
+    "totalLimit" : 400,
+    "warningThreshold" : 0.8
+  }
+}

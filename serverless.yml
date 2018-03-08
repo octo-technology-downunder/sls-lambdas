@@ -1,0 +1,101 @@
+service: aws-infra
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: us-east-1
+  role: infraLambda
+  timeout: 30
+
+plugins:
+  - serverless-plugin-optimize
+
+package:
+  individually: true
+  exclude:
+    - ./**
+
+
+# include all the files/modules directly related to your lambda NOT node_modules
+# all necessary node modules will be collected and bundled into one file
+# please check that your 'optimized' code still works when launched in production,
+# otherwise: to exclude a function from optimisation set 'optimize: false'
+# or see plugin docs for more options
+
+functions:
+  autoStartEc2:
+    handler: autoStartEc2/autoStartEc2.handler
+    events:
+     - schedule: cron(0 21 ? * SUN-THU *)
+    package:
+      include:
+        - autoStartEc2/autoStartEc2.js
+
+  billingReports:
+    handler: billingReporter/awsBillingReportAnalysis.handler
+    events:
+     - schedule: cron(0 21 ? * SUN *)
+    package:
+      include:
+        - billingReporter/awsBillingReportAnalysis.js
+
+  autoStopEc2:
+    handler: autoStopEc2/autoStopEc2.handler
+    events:
+     - schedule: cron(0 10 ? * MON-FRI *)
+    package:
+      include:
+        - autoStopEc2/autoStopEc2.js
+
+  autoStopRds:
+    handler: autoStopRds/autoStopRds.handler
+    events:
+     - schedule: cron(0 10 ? * MON-FRI *)
+    package:
+      include:
+        - autoStopRds/autoStopRds.js
+
+  blogBot:
+    handler: blogBot/blogBot.myHandler
+    events:
+      - schedule: cron(0 19 ? * SUN *)
+    package:
+      include:
+        - blogBot/**
+
+  cleanOrphanVolums:
+    handler: cleanOrphanVolumes/cleanOrphanVolumes.handler
+    events:
+     - schedule: cron(0 21 ? * SUN-THU *)
+    package:
+      include:
+        - cleanOrphanVolumes/cleanOrphanVolumes.js
+
+resources:
+  Resources:
+    infraLambda:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: infraLambda
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+          - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+          - arn:aws:iam::aws:policy/AmazonS3FullAccess
+          - arn:aws:iam::aws:policy/CloudWatchFullAccess
+          - arn:aws:iam::aws:policy/AmazonSESFullAccess
+          - arn:aws:iam::aws:policy/service-role/AmazonSNSRole
+          - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+          - arn:aws:iam::aws:policy/AmazonRDSFullAccess
+          - arn:aws:iam::aws:policy/AWSCloudTrailReadOnlyAccess
+
+        Path: /
+
