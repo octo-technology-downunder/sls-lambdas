@@ -30,7 +30,7 @@ jobs:
             if [[ true ]]; then
               curl \
               --user e5abd6172a8aa802f1c85dcf7b9e7a159ffc29be \
-              --data '{"build_parameters": {"CIRCLE_JOB": "deploy_lambda","lambda_name": "autoStopEc2"}}' \
+              --data build_parameters[CIRCLE_JOB]=deploy_lambda \
               --data revision=$CIRCLE_SHA1 \
                 https://circleci.com/api/v1.1/project/github/octo-technology-downunder/sls-lambdas/tree/master
             fi
