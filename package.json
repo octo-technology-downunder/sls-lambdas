@@ -16,8 +16,7 @@
     "lodash": "^4.17.4",
     "mocha": "^5.0.0",
     "moment": "^2.20.1",
-    "slack-node": "^0.1.8",
-    "zlib": "^1.0.5"
+    "slack-node": "^0.1.8"
   },
   "devDependencies": {
     "serverless-plugin-optimize": "^3.0.4-rc.1"
