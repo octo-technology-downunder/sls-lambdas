@@ -28,8 +28,11 @@ jobs:
           name: conditionally run a deploy job
           command: |
             if [[ true ]]; then
-              curl --data '{"build_parameters": {"CIRCLE_JOB": "deploy_lambda","lambda_name": "autoStopEc2"}}' \
-                https://circleci.com/api/v1.1/project/github/octo-technology-downunder/sls-lambdas/tree/master?circle-token=e5abd6172a8aa802f1c85dcf7b9e7a159ffc29be
+              curl \
+              --user ${CIRCLE_API_TOKEN}: \
+              --data '{"build_parameters": {"CIRCLE_JOB": "deploy_lambda","lambda_name": "autoStopEc2"}}' \
+              --data revision=$CIRCLE_SHA1 \
+                https://circleci.com/api/v1.1/project/github/octo-technology-downunder/sls-lambdas/tree/master
             fi
 
   deploy_lambda:
