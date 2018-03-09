@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-bash set_deploy_params.sh
+lambda_name=$(cat LAMBDA_TO_DEPLOY)
 
 new_template_file="cf_template_s3.yml"
 
