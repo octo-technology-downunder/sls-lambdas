@@ -50,7 +50,7 @@ jobs:
           command: sudo pip install pyyaml
       - run:
           name: Publish on Serverless repository
-          command: bash publish_lambda.sh
+          command: bash publish_lambdas.sh
 
 workflows:
   version: 2

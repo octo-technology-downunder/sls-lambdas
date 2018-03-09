@@ -2,5 +2,5 @@
 set -ex
 while read F
     export lambda_name=$F
-    publish_lambda.sh
+    publish_one_lambda.sh
 done <./LAMBDAS_TO_DEPLOY
