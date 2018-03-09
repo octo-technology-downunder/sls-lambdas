@@ -38,6 +38,7 @@ jobs:
     working_directory: ~/sls-lambdas
 
     steps:
+      - checkout
       - run:
           name: Set lambda name
           command: bash set_deploy_params.sh
