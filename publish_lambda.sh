@@ -43,7 +43,7 @@ fi
 
 source_code_url='git@github.com:octo-technology-downunder/sls-ec2-auto-stop.git'
 
-if [[ ${lambda_exists} ]]; then
+if ${lambda_exists} ; then
     echo "Lambda found"
     lambda_id=$(aws serverlessrepo list-applications --query "Applications[?Name==\`$lambda_name\`].ApplicationId" --output text --region ap-southeast-2)
     lambda_version=$(increment_version $(aws serverlessrepo get-application --application-id ${lambda_id} --query "Version.SemanticVersion" --output text --region ap-southeast-2))
@@ -54,9 +54,6 @@ if [[ ${lambda_exists} ]]; then
     --source-code-url ${source_code_url} \
     --template-body "`cat ./${new_template_file}`" \
     --region ap-southeast-2
-
-
-
 else
     lambda_version='0.1.1'
     aws serverlessrepo create-application \
