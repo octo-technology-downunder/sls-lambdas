@@ -24,7 +24,7 @@ jobs:
 
       - run: npm test
 
-      - run: npm install serverless
+      - run: npm install -g serverless
 
       - run: sls package
 
