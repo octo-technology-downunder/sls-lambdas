@@ -55,12 +55,12 @@ workflows:
   build-deploy:
     jobs:
       - build:
-          context: org-global
+          context: sls-lambdas
           filters:
             branches:
               only: master
       - deploy:
-          context: org-global
+          context: sls-lambdas
           requires:
             - build
           filters:
