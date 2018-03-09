@@ -27,6 +27,9 @@ jobs:
       - run: sudo npm install -g serverless
 
       - run: sls package
+      - run: ls ./
+      - run: ls ./.serverless
+      - run: ls ~/sls-lambdas/.serverless
 
       - deploy:
           name: conditionally run a deploy job
