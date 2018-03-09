@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ex
 
+bash set_deploy_params.sh
+
 new_template_file="cf_template_s3.yml"
 
 # Usage: increment_version <version> [<position>]
