@@ -41,7 +41,7 @@ if [[ -z "$lambda_name_exists" ]]; then
     lambda_exists=false
 fi
 
-source_code_url='git@github.com:octo-technology-downunder/sls-ec2-auto-stop.git'
+source_code_url='https://github.com/octo-technology-downunder/sls-lambdas.git'
 
 if ${lambda_exists} ; then
     echo "Lambda found"
@@ -57,8 +57,8 @@ if ${lambda_exists} ; then
 else
     lambda_version='0.1.1'
     aws serverlessrepo create-application \
-    --author "Octo Technology" \
-    --description "Stopping EC2 instances automatically" \
+    --author "Octo Technology Australia" \
+    --description $lambda_name \
     --home-page-url https://www.octo.com/en \
     --labels EC2 \
     --name $lambda_name \
