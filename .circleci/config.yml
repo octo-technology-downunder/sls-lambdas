@@ -38,7 +38,7 @@ jobs:
     working_directory: ~/sls-lambdas
 
     steps:
-      - run: ./set_deploy_params.sh
+      - run: bash set_deploy_params.sh
       - run:
           name: Install Python deps
           command: sudo pip install awscli
@@ -48,7 +48,7 @@ jobs:
       - run:
           name: Publish on Serverless repository
           command: bash publish_lambda.sh
-      - run: ./reset_deploy_params.sh
+      - run: bash reset_deploy_params.sh
 
 workflows:
   version: 2
