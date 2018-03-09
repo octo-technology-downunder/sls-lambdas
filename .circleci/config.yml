@@ -59,6 +59,8 @@ workflows:
           filters:
             branches:
               only: master
+            tags:
+              only: /^deploy.*/
       - deploy:
           context: sls-lambdas
           requires:
