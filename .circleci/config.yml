@@ -27,21 +27,9 @@ jobs:
       - run: sudo npm install -g serverless
 
       - run: sls package
-      - run: ls ./
-      - run: ls ./.serverless
-      - run: ls ~/sls-lambdas/.serverless
-
-      - deploy:
-          name: conditionally run a deploy job
-          command: |
-            if [[ true ]]; then
-              curl \
-              --user e5abd6172a8aa802f1c85dcf7b9e7a159ffc29be \
-              --data build_parameters[CIRCLE_JOB]=deploy_lambda \
-              --data build_parameters[lambda_name]=$lambda_name \
-              --data revision=$CIRCLE_SHA1 \
-                https://circleci.com/api/v1.1/project/github/octo-technology-downunder/sls-lambdas/tree/master
-            fi
+      - run: ls -all ./
+      - run: ls -all ./.serverless
+      - run: ls -all ~/sls-lambdas/.serverless
 
   deploy_lambda:
     docker:
@@ -50,7 +38,7 @@ jobs:
     working_directory: ~/sls-lambdas
 
     steps:
-      - checkout
+      - run: ./set_deploy_params.sh
       - run:
           name: Install Python deps
           command: sudo pip install awscli
@@ -60,27 +48,23 @@ jobs:
       - run:
           name: Publish on Serverless repository
           command: bash publish_lambda.sh
+      - run: ./reset_deploy_params.sh
 
 workflows:
   version: 2
   build-deploy:
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - master
     jobs:
       - build:
           context: org-global
           filters:
             branches:
               only: master
-#      - deploy:
-#          context: org-global
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              only: master
+      - deploy:
+          context: org-global
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+            tags:
+              only: /^deploy.*/
