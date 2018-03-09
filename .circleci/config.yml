@@ -58,7 +58,7 @@ workflows:
           context: sls-lambdas
           filters:
             branches:
-              only: master
+              ignore: /.*/
             tags:
               only: /^deploy.*/
       - deploy:
@@ -67,6 +67,6 @@ workflows:
             - build
           filters:
             branches:
-              only: master
+              ignore: /.*/
             tags:
               only: /^deploy.*/
