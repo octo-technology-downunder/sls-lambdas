@@ -41,7 +41,7 @@ if [[ -z "$lambda_name_exists" ]]; then
     lambda_exists=false
 fi
 
-source_code_url='https://github.com/octo-technology-downunder/sls-lambdas.git'
+source_code_url="git@github.com:octo-technology-downunder/sls-lambdas.git"
 
 if ${lambda_exists} ; then
     echo "Lambda found"
