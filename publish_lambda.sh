@@ -1,8 +1,6 @@
 #!/bin/bash
 set -ex
 
-lambda_name=$(cat LAMBDA_TO_DEPLOY)
-
 new_template_file="cf_template_s3.yml"
 
 # Usage: increment_version <version> [<position>]

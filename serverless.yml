@@ -63,7 +63,7 @@ functions:
       include:
         - blogBot/**
 
-  cleanOrphanVolums:
+  cleanOrphanVolumes:
     handler: cleanOrphanVolumes/cleanOrphanVolumes.handler
     events:
      - schedule: cron(0 21 ? * SUN-THU *)
