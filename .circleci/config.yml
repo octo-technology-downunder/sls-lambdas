@@ -51,9 +51,6 @@ jobs:
       - run:
           name: Publish on Serverless repository
           command: bash publish_lambda.sh
-      - run:
-          name: Reset lambda name
-          command: bash reset_deploy_params.sh
 
 workflows:
   version: 2
