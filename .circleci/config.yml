@@ -31,7 +31,7 @@ jobs:
       - run: ls -all ./.serverless
       - run: ls -all ~/sls-lambdas/.serverless
 
-  deploy_lambda:
+  deploy:
     docker:
       - image: circleci/python:3.6.4
 
