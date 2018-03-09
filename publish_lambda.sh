@@ -59,10 +59,10 @@ else
     aws serverlessrepo create-application \
     --author "Octo Technology Australia" \
     --description $lambda_name \
-    --home-page-url https://www.octo.com/en \
+    --home-page-url \"https://www.octo.com/en\" \
     --labels EC2 \
     --name $lambda_name \
-    --semantic-version lambda_version \
+    --semantic-version ${lambda_version} \
     --source-code-url ${source_code_url} \
     --spdx-license-id Apache-2.0 \
     --template-body "`cat ./${new_template_file}`" \
