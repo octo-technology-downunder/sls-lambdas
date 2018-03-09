@@ -27,9 +27,11 @@ jobs:
       - run: sudo npm install -g serverless
 
       - run: sls package
-      - run: ls -all ./
-      - run: ls -all ./.serverless
-      - run: ls -all ~/sls-lambdas/.serverless
+
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - ./
 
   deploy:
     docker:
@@ -38,7 +40,8 @@ jobs:
     working_directory: ~/sls-lambdas
 
     steps:
-      - checkout
+      - attach_workspace:
+          at: ./
       - run:
           name: Set lambda name
           command: bash set_deploy_params.sh
