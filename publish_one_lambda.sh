@@ -24,10 +24,6 @@ $(<cf_template.yml)
 EOF
 " > cf_template_prepared.yml
 
-ls -all ./
-ls -all ./.serverless
-ls -all ~/sls-lambdas/.serverless
-
 #Packaging and sending package to S3, updating template with S3 URI
 aws cloudformation package --template-file cf_template_prepared.yml --s3-bucket serverless-public --s3-prefix $lambda_name --output-template-file $new_template_file --region ap-southeast-2
 
