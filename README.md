@@ -22,7 +22,7 @@ In order to provide all required configuration parameters to your lambda functio
 * **pip** is installed. If not, visit [https://pip.pypa.io/en/stable/installing/]
 * **git** is installed. If not, see [https://git-scm.com/book/en/v2/Getting-Started-Installing-Git]
 * **pyyaml** is installed. If not, do `pip install pyyaml`
-* **aws cli** is installed. If not, do `pip install awscli`
+* **aws cli** is installed. If not, do `pip install awscli`, then run `aws configure`
 * **npm** is installed. If not, visit [https://docs.npmjs.com/getting-started/installing-node]
 * **serverless framework** is installed. If not, do `npm install -g serverless`
 
@@ -33,10 +33,11 @@ In order to provide all required configuration parameters to your lambda functio
 4. Update commonSettings.json with parameter values relevant to your setup. See Common Settings Configuration for more details
 5. `sls package` to package lambdas to individual optimized zip archives (available in .serverless)
 6. Update `LAMBDAS_TO_DEPLOY` file with the list of lambdas to be deployed to your AWS account. Each function name must be on separate line, no comments allowed. Exact function names can be taken from the table above or serverless.yml file
-7. `bash publish_lambdas.sh` to deploy your functions
+7. `bash publish_lambdas.sh` to deploy your functions. NOTE: change your preferred AWS deployment region in `publish_one_lambda.sh`
 
 
 ## Common settings configuration
+All lambda functions, except **billingReporter**, are configurable via commonSettings.json. For **billingReporter** configuration skip to **Billing reporter settings configuration**
 To configure your lambda function, open commonSettings.json and populate all parameter values relevant to your setup.
 List of parameters available for configuration is provided below:
 
@@ -76,3 +77,13 @@ List of parameters available for configuration is provided below:
 | users | Group of parameters related to AWS to Slack users mapping. Specifically for autoStopEc2 function |
 | **users.unknownUser** | Name to show in Slack message if can't map AWS user to Slack userid |
 | **users.AWStoSlackUsersMap** | Map of AWS username to Slack userid |
+
+
+## Billing reporter settings configuration
+| Parameters group | Description |
+| --- | --- |
+| s3 | Group of parameters to configure billing reports location in AWS S3 |
+| converter | Group of parameters to configure conversion of default USD amout to required currency |
+| slack | Group of parameters to configure Slack notifications |
+| csv | Group of parameters to configure names of columns in billing report csv file to report on |
+| thresholds | Group of parameters to configure alert thresholds for different services |
