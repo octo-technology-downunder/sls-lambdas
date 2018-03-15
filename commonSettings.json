@@ -24,7 +24,6 @@
   "instances" : {
     "ec2" : {
       "serviceType" : "EC2",
-      "resourceType" : "AWS::EC2::Instance",
       "dryRun" : false
     },
     "rds" : {
