@@ -4,7 +4,9 @@ const {
     log
 } = require('../lib/ec2_rds');
 
-const settings = require('../commonSettings.json');
+const {loadSettings} = require("../lib/envLoader");
+const settings = loadSettings();
+
 
 const ec2 = new AWS.EC2();
 

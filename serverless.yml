@@ -24,6 +24,8 @@ package:
 
 functions:
   autoStartEc2:
+    description: "Automatically starts all EC2 instances in ALL regions which are tagged appropriately"
+    labels: "ec2 auto start manage monitor"
     handler: autoStartEc2/autoStartEc2.handler
     events:
      - schedule: cron(0 21 ? * SUN-THU *)
@@ -32,6 +34,8 @@ functions:
         - autoStartEc2/autoStartEc2.js
 
   billingReports:
+    description: "Delivers latest AWS costs breakdown to your Slack channel"
+    labels: "billing report"
     handler: billingReporter/awsBillingReportAnalysis.handler
     events:
      - schedule: cron(0 21 ? * SUN *)
@@ -40,6 +44,8 @@ functions:
         - billingReporter/awsBillingReportAnalysis.js
 
   autoStopEc2:
+    description: "Automatically stops all EC2 instances in ALL regions except excluded ones"
+    labels: "ec2 auto stop manage monitor cost saving"
     handler: autoStopEc2/autoStopEc2.handler
     events:
      - schedule: cron(0 10 ? * MON-FRI *)
@@ -48,6 +54,8 @@ functions:
         - autoStopEc2/autoStopEc2.js
 
   autoStopRds:
+    description: "Automatically stops all RDS instances in ALL regions except excluded ones"
+    labels: "rds auto stop manage monitor cost saving"
     handler: autoStopRds/autoStopRds.handler
     events:
      - schedule: cron(0 10 ? * MON-FRI *)
@@ -56,6 +64,7 @@ functions:
         - autoStopRds/autoStopRds.js
 
   blogBot:
+    description: "Blog bot"
     handler: blogBot/blogBot.myHandler
     events:
       - schedule: cron(0 19 ? * SUN *)
@@ -64,6 +73,8 @@ functions:
         - blogBot/**
 
   cleanOrphanVolumes:
+    description: "Removes all EC2 volumes in ALL regions, which are not attached to any EC2 instance"
+    labels: "ec2 volumes auto clean remove cost saving"
     handler: cleanOrphanVolumes/cleanOrphanVolumes.handler
     events:
      - schedule: cron(0 21 ? * SUN-THU *)

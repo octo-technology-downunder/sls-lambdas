@@ -5,41 +5,80 @@ This can significantly reduce administration effort and lower running costs of A
 All functions support Slack integration to notify of performed actions. Some of them also support emails.
 List of the functions can be found in the table below.
 
-| Function name | Description | Configuration | Notification type |
-| --- | --- | --------- | --- |
-| autoStopEc2 |  Automatically stops all EC2 instances in ALL regions except excluded ones | To prevent particular EC2 instance from being stopped automaitcally, add tag 'AutoStop' with value 'false' to that instance | Slack, Email |
-| autoStartEc2 | Automatically starts all EC2 instances in ALL regions which are tagged appropriately | To allow particular EC2 instance be started automatically, add tag 'AutoStop' with value 'true' to that instance  | Slack, Email |
-| autoStopRds | Automatically stops all RDS instances in ALL regions except excluded ones | To prevent particular RDS instance from being stopped automaitcally, add tag 'AutoStop' with value 'false' to that instance | Slack, Email |
-| billingReporter | Delivers latest AWS costs breakdown to your Slack channel  | For notification settings, see Common settings configuration | Slack |
-| cleanOrphanVolumes | Removes all EC2 volumes in ALL regions, which are not attached to any EC2 instance | For notification settings, see Common settings configuration | Slack |
+| Function name | Description | Configuration | Notification type | IAM Policies required |
+| --- | --- | --- | --- | --- |
+| autoStopEc2 |  Automatically stops all EC2 instances in ALL regions except white-listed instances | To prevent particular EC2 instance from being stopped automatically, add tag 'AutoStop' with value 'false' to that instance | Slack, Email | - arn:aws:iam::aws:policy/AmazonEC2FullAccess<br/>- arn:aws:iam::aws:policy/AmazonSESFullAccess<br/>- arn:aws:iam::aws:policy/AWSCloudTrailReadOnlyAccess |
+| autoStartEc2 | Automatically starts all appropriately tagged EC2 instances in ALL regions | To allow particular EC2 instance be started automatically, add tag 'AutoStop' with value 'true' to that instance  | Slack, Email | - arn:aws:iam::aws:policy/AmazonEC2FullAccess<br/>- arn:aws:iam::aws:policy/AmazonSESFullAccess |
+| autoStopRds | Automatically stops all RDS instances in ALL regions except white-listed instances | To prevent particular RDS instance from being stopped automaitcally, add tag 'AutoStop' with value 'false' to that instance | Slack, Email | - arn:aws:iam::aws:policy/AmazonRDSFullAccess<br/>- arn:aws:iam::aws:policy/AmazonSESFullAccess<br/>- arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess |
+| billingReporter | Delivers latest AWS costs breakdown to your Slack channel  | For notification settings, see Common settings configuration | Slack | - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess |
+| cleanOrphanVolumes | Removes all EC2 volumes in ALL regions, which are not attached to any EC2 instance | For notification settings, see Common settings configuration | Slack | - arn:aws:iam::aws:policy/AmazonEC2FullAccess |
 
 
 ## Installation
-In order to provide all required configuration parameters to your lambda functions, please follow installation process as described below.
+1. Installation is performed by creating lambda function from AWS Serverless Application Repository (in AWS Console, go to Lambda->Functions->Create Function->Serverless Application Repository).
+2. In order to provide all required configuration parameters to your lambda functions, please update CommonSettings variable in the **Configure application parameters** section of lambda function creation screen.
+   See **Common settings configuration** section for details
+3. Lambda functions require specific AWS IAM Policies to be attached to them, which can't be done automatically during deployment.
+   To make lambdas work, please attach required policies, to the IAM role of created lambda function manually.
+   List of policies, required for particular function can be found in the table above
 
-#### Installation Prerequisites:
-* **python** is installed. If not, visit [https://www.python.org/about/gettingstarted/]
-* **pip** is installed. If not, visit [https://pip.pypa.io/en/stable/installing/]
-* **git** is installed. If not, see [https://git-scm.com/book/en/v2/Getting-Started-Installing-Git]
-* **pyyaml** is installed. If not, do `pip install pyyaml`
-* **aws cli** is installed. If not, do `pip install awscli`, then run `aws configure`
-* **npm** is installed. If not, visit [https://docs.npmjs.com/getting-started/installing-node]
-* **serverless framework** is installed. If not, do `npm install -g serverless`
-
-#### Installation steps
-1. Clone git repository to your local directory
-2. `npm install` from the root directory of your cloned repo
-3. `npm install serverless-plugin-optimize --save-dev` to install package optimisation plugin
-4. Update commonSettings.json with parameter values relevant to your setup. See Common Settings Configuration for more details
-5. `sls package` to package lambdas to individual optimized zip archives (available in .serverless)
-6. Update `LAMBDAS_TO_DEPLOY` file with the list of lambdas to be deployed to your AWS account. Each function name must be on separate line, no comments allowed. Exact function names can be taken from the table above or serverless.yml file
-7. `bash publish_lambdas.sh` to deploy your functions. NOTE: change your preferred AWS deployment region in `publish_one_lambda.sh`
 
 
 ## Common settings configuration
-All lambda functions, except **billingReporter**, are configurable via commonSettings.json. For **billingReporter** configuration skip to **Billing reporter settings configuration**
-To configure your lambda function, open commonSettings.json and populate all parameter values relevant to your setup.
-List of parameters available for configuration is provided below:
+All lambda functions are configurable via **CommonSettings** variable.
+All lambda functions, except **billingReporter**, require JSON string in **CommonSettings** variable. Format is provided below. For **billingReporter** configuration skip to **Billing reporter settings configuration**
+```
+{
+  "notifications" : {
+    "email" : {
+      "notify" : false,
+      "emails" : ["to@test.com"],
+      "source" : "from@test.com",
+      "replyTo" : ["Test User <from@test.com>"],
+      "charSet" : "UTF-8"
+    },
+    "slack" : {
+      "notify" : true,
+      "webhookUri" : "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXX",
+      "channel": "XXXXXX",
+      "botName": "AWS Guard",
+      "messageEmoji" : ":guardsman:",
+      "imgLocked" : "https://emojipedia-us.s3.amazonaws.com/thumbs/120/apple/118/lock_1f512.png",
+      "imgRemoved" : "https://emojipedia-us.s3.amazonaws.com/thumbs/120/apple/118/cross-mark_274c.png",
+      "footerTitle": "",
+      "footer": "I'm an AWS lambda. If you want to modify me, please update here:\nhttps://github.com/octo-technology-downunder",
+      "footerColor": "#FFFFFF",
+      "footerIcon": "https://a.slack-edge.com/f30f/img/services/api_200.png"
+    }
+  },
+  "instances" : {
+    "ec2" : {
+      "serviceType" : "EC2",
+      "dryRun" : false
+    },
+    "rds" : {
+      "serviceType" : "RDS"
+    },
+    "tags" : {
+      "ON_value" : "true",
+      "OFF_value" : "false",
+      "autoStop" : "AutoStop",
+      "autoStart" : "AutoStart",
+      "name" : "Name"
+    }
+  },
+  "users" : {
+    "unknownUser" : "~unknown~",
+    "AWStoSlackUsersMap" : [
+      {"awsId": "USER1", "slackId": "UXXXXXXXXX"},
+      {"awsId": "USER2", "slackId": "UXXXXXXXXX"}
+    ]
+  }
+}
+```
+
+
+Description of parameters available for configuration is provided below:
 
 | Parameter group or name | Description |
 | --- | --- |
@@ -69,8 +108,8 @@ List of parameters available for configuration is provided below:
 | instances.rds | Group of parameters related to AWS RDS service instances |
 | **instances.rds.serviceType** | Service Type name to display in email notification |
 | instances.tags | Group of parameters to configure tags for autoStop/autoStart lambdas |
-| **instances.tags.ON_value** | Value of the autoStop/autoStart tags which ENABLES a setting. Case sensitice |
-| **instances.tags.OFF_value** | Value of the autoStop/autoStart tags which DISABLES a setting. Case sensitice |
+| **instances.tags.ON_value** | Value of the autoStop/autoStart tags which ENABLES a setting. Case sensitive |
+| **instances.tags.OFF_value** | Value of the autoStop/autoStart tags which DISABLES a setting. Case sensitive |
 | **instances.tags.autoStop** | Name of the autoStop tag. Case sensitive |
 | **instances.tags.autoStart** | Name of the autoStart tag. Case sensitive |
 | **instances.tags.name** | Name of the Name tag. Case sensitive |
@@ -80,6 +119,56 @@ List of parameters available for configuration is provided below:
 
 
 ## Billing reporter settings configuration
+For billing reporter, please use JSON string of the following format in the **CommonSettings** variable
+
+```
+{
+  "s3": {
+    "awsRegion": "ap-southeast-2",
+    "keyPrefix": "XXXX/XXXXXX",
+    "billingBucketName": "XXXXXXXXX",
+    "reportFileName": "XXXXXXXXX.csv.gz",
+    "manifestFileName": "XXXXXXXXX-Manifest.json"
+  },
+  "converter": {
+    "converterUrl": "https://api.fixer.io/latest?base=AUD&symbols=USD",
+    "currencySymbol" : "AUD $",
+    "converterDefaultRate": 1,
+    "converterDefaultCurrency" : "USD $"
+  },
+  "slack": {
+    "webhookUri": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "botName": "Billing Report",
+    "messageTitle": "AWS Services bill of the current month",
+    "messageTitleLink": "https://console.aws.amazon.com/billing/home#/",
+    "channel": "#XXXXXXXXX",
+    "dangerIcon": "http://www.thelibrarypolice.com/uploads/1/4/0/6/14066006/published/warning.png",
+    "footerTitle": "Check out more at\nhttps://console.aws.amazon.com/billing/home#/",
+    "footer": "I'm an AWS lambda. If you want to modify me, please update here:\nhttps://github.com/octo-technology-downunder",
+    "footerColor": "#FFFFFF",
+    "footerIcon": "https://a.slack-edge.com/f30f/img/services/api_200.png",
+    "colorDanger" : "danger",
+    "colorWarning" : "warning",
+    "colorGood" : "good",
+    "colorOther" : "##FFFC2D",
+    "messageEmoji": ":moneybag:",
+    "overspentMessage": "@here *Some services exceed their cost limits (red items below)!*"
+  },
+  "csv": {
+    "amountColumnName": "lineItem/BlendedCost",
+    "serviceColumnName": "product/ProductName"
+  },
+  "thresholds" : {"services" : [
+    {"serviceName" : "Amazon Elastic Compute Cloud", "limit" : 200},
+    {"serviceName" : "Amazon Relational Database Service", "limit" : 150},
+    {"serviceName" : "Amazon DynamoDB", "limit" : 50}],
+    "totalLimit" : 400,
+    "warningThreshold" : 0.8
+  }
+}
+```
+
+Description of parameter groups available for configuration is provided below:
 | Parameters group | Description |
 | --- | --- |
 | s3 | Group of parameters to configure billing reports location in AWS S3 |

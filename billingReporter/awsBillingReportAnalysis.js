@@ -7,12 +7,20 @@ const {promisify} = require('es6-promisify');
 const gunzip = promisify(require('zlib').gunzip);
 
 const BillingReport = require('./billingReporter.js');
-
-const settings = require('./billingReporterSettings.json');
-
-
 const slack = new Slack();
 const billingReporter = new BillingReport();
+
+const defaultSettings = require('./billingReporterSettings.json');
+const settings = loadSettings(defaultSettings);
+
+function loadSettings(defaultSettings) {
+    const conf = process.env.CommonSettings ?
+        JSON.parse(process.env.CommonSettings) :
+        defaultSettings;
+    console.log("COMMON SETTINGS: " + JSON.stringify(conf));
+    return conf;
+}
+
 
 AWS.config.update({region: settings.s3.awsRegion});
 const s3 = new AWS.S3();

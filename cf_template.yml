@@ -1,12 +1,17 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: "AWS::Serverless-2016-10-31"
 Description: "SAM template for Serverless framework service: "
-
+Parameters:
+  CommonSettings:
+    Type: String
 Resources:
   ${lambda_name}:
     Type: "AWS::Serverless::Function"
     Properties:
-      Handler: ${lambda_handler}
+      Environment:
+        Variables:
+          CommonSettings: !Ref CommonSettings
+      Handler: _optimize/aws-infra-dev-${lambda_name}/${lambda_handler}
       Runtime: nodejs6.10
       MemorySize: 128
       Timeout: 30
@@ -16,11 +21,3 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: cron(0 10 ? * MON-FRI *)
-    Policies:
-      - AmazonEC2FullAccess
-      - AWSLambdaFullAccess
-      - AmazonS3FullAccess
-      - CloudWatchFullAccess
-      - AmazonSESFullAccess
-      - AmazonSNSFullAccess
-      - AWSCloudTrailReadOnlyAccess

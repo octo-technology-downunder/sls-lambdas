@@ -1,9 +1,7 @@
 #!/bin/bash
 set -ex
 
-new_template_file="cf_template_s3.yml"
-
-# Usage: increment_version <version> [<position>]
+# Increment version function. Usage: increment_version <version> [<position>]
 increment_version() {
     local v=$1
     if [ -z $2 ]; then
@@ -16,49 +14,57 @@ increment_version() {
     echo "$v" | perl -pe s/$rgx.*$'/${1}'`printf %0${#val}s $(($val+1))`/
 }
 
+
+new_template_file="cf_template_s3.yml"
+aws_region=us-east-1
+
 # preparing CloudFormation template for particular lambda
 # lambda_name variable should be provided as parameter to a circleci build
 lambda_handler=$(python getLambdaParams.py $lambda_name handler)
+lambda_description=$(python getLambdaParams.py $lambda_name description)
+lambda_labels=$(python getLambdaParams.py $lambda_name labels)
+
 eval "cat <<EOF
 $(<cf_template.yml)
 EOF
 " > cf_template_prepared.yml
 
 #Packaging and sending package to S3, updating template with S3 URI
-aws cloudformation package --template-file cf_template_prepared.yml --s3-bucket serverless-public --s3-prefix $lambda_name --output-template-file $new_template_file --region ap-southeast-2
+aws cloudformation package --template-file cf_template_prepared.yml --s3-bucket serverless-public --s3-prefix $lambda_name --output-template-file $new_template_file --region ${aws_region}
 
 # Verify if lambda already published
-lambda_name_exists=$(aws serverlessrepo list-applications --query "Applications[?Name==\`$lambda_name\`].[Name, Version]" --output text --region ap-southeast-2)
+lambda_name_exists=$(aws serverlessrepo list-applications --query "Applications[?Name==\`$lambda_name\`].[Name, Version]" --output text --region ${aws_region})
 lambda_exists=true
 if [[ -z "$lambda_name_exists" ]]; then
     echo "Lambda not found"
     lambda_exists=false
 fi
 
-source_code_url="git@github.com:octo-technology-downunder/sls-lambdas.git"
 
 if ${lambda_exists} ; then
     echo "Lambda found"
-    lambda_id=$(aws serverlessrepo list-applications --query "Applications[?Name==\`$lambda_name\`].ApplicationId" --output text --region ap-southeast-2)
-    lambda_version=$(increment_version $(aws serverlessrepo get-application --application-id ${lambda_id} --query "Version.SemanticVersion" --output text --region ap-southeast-2))
+    lambda_id=$(aws serverlessrepo list-applications --query "Applications[?Name==\`$lambda_name\`].ApplicationId" --output text --region ${aws_region})
+    lambda_version=$(increment_version $(aws serverlessrepo get-application --application-id ${lambda_id} --query "Version.SemanticVersion" --output text --region ${aws_region}))
     echo "Application id is $lambda_id"
     aws serverlessrepo create-application-version \
     --application-id ${lambda_id} \
     --semantic-version ${lambda_version} \
-    --source-code-url ${source_code_url} \
+    --source-code-url file://$(pwd)/url_source_code \
     --template-body "`cat ./${new_template_file}`" \
-    --region ap-southeast-2
+    --region ${aws_region}
 else
     lambda_version='0.1.1'
     aws serverlessrepo create-application \
     --author "Octo Technology Australia" \
-    --description $lambda_name \
-    --home-page-url \"https://www.octo.com/en\" \
-    --labels EC2 \
-    --name $lambda_name \
+    --description "`echo ${lambda_description}`" \
+    --home-page-url file://$(pwd)/url_home_page \
+    --name ${lambda_name} \
     --semantic-version ${lambda_version} \
-    --source-code-url ${source_code_url} \
+    --source-code-url file://$(pwd)/url_source_code \
     --spdx-license-id Apache-2.0 \
     --template-body "`cat ./${new_template_file}`" \
-    --region ap-southeast-2
+    --readme-body "`cat ./README.md`"\
+    --license-body "`cat ./LICENSE`"\
+    --labels ${lambda_labels} \
+    --region ${aws_region}
 fi

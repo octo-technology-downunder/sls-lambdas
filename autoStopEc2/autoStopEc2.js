@@ -13,7 +13,8 @@ const {
     log
 } = require('../lib/ec2_rds');
 
-const settings = require('../commonSettings.json');
+const {loadSettings} = require("../lib/envLoader");
+const settings = loadSettings();
 const tags = settings.instances.tags;
 const emails = settings.notifications.email.emails; // verify email address here: https://console.aws.amazon.com/ses/home?region=us-east-1#verified-senders-email:
 

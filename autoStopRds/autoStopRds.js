@@ -6,7 +6,8 @@ const {
     flatArray,
     log
 } = require('../lib/ec2_rds');
-const settings = require('../commonSettings.json');
+const {loadSettings} = require("../lib/envLoader");
+const settings = loadSettings();
 const tags = settings.instances.tags;
 
 function getRDSInstancesEmailDetails(instancesWithTags) {
