@@ -151,6 +151,7 @@ For billing reporter, please use JSON string of the following format in the **Co
     "colorWarning" : "warning",
     "colorGood" : "good",
     "colorOther" : "##FFFC2D",
+    "colorDefault" : "#FFFFFF",
     "messageEmoji": ":moneybag:",
     "overspentMessage": "@here *Some services exceed their cost limits (red items below)!*"
   },

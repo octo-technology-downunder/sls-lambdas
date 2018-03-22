@@ -27,6 +27,7 @@
     "colorWarning" : "warning",
     "colorGood" : "good",
     "colorOther" : "##FFFC2D",
+    "colorDefault" : "#FFFFFF",
     "messageEmoji": ":scrooge:",
     "overspentMessage": "@here *Some services exceed their cost limits (red items below)!*"
   },
