@@ -39,6 +39,7 @@
     {"serviceName" : "Amazon Relational Database Service", "limit" : 150},
     {"serviceName" : "Amazon DynamoDB", "limit" : 50}],
     "totalLimit" : 400,
-    "warningThreshold" : 0.8
+    "warningThreshold" : 0.8,
+    "breakdownLimit": 0.99
   }
 }

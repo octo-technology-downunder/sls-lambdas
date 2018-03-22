@@ -163,16 +163,22 @@ For billing reporter, please use JSON string of the following format in the **Co
     {"serviceName" : "Amazon Relational Database Service", "limit" : 150},
     {"serviceName" : "Amazon DynamoDB", "limit" : 50}],
     "totalLimit" : 400,
-    "warningThreshold" : 0.8
+    "warningThreshold" : 0.8,
+    "breakdownLimit": 0.99
   }
 }
 ```
 
 Description of parameter groups available for configuration is provided below:
-| Parameters group | Description |
+
+| Parameter group or name | Description |
 | --- | --- |
 | s3 | Group of parameters to configure billing reports location in AWS S3 |
-| converter | Group of parameters to configure conversion of default USD amout to required currency |
+| converter | Group of parameters to configure conversion of default USD amount to required currency |
 | slack | Group of parameters to configure Slack notifications |
 | csv | Group of parameters to configure names of columns in billing report csv file to report on |
-| thresholds | Group of parameters to configure alert thresholds for different services |
+| thresholds | Group of parameters to configure alert thresholds for different services. If expenses are over defined limit for particular service, Slack attachment for this service will be highlighted with defined color (red by default) and icon |
+| thresholds.services | An array of objects defining services and their spend limits |
+| thresholds.totalLimit | Spend limit for grand total across all services |
+| thresholds.warningThreshold | Defines a level of spend which will trigger a warning alert (Slack attachment marked yellow by default) for configured limit. E.g. with totalLimit = 100 and warningThreshold = 0.8, when grand total goes over $80, grand total will be with yellow tag |
+| thresholds.breakdownLimit | Assuming services are sorted by amount spent in descending order, this parameter defines number of services to display in cost breakdown based on running total ratio to grand total. E.g. with grand total = $100 and breakdownLimit = 0.99, Billing Report will show top most expensive services which sum is <= $99. Rest of services will be reported as Other Services |

@@ -1,5 +1,1 @@
-autoStopEc2
-autoStartEc2
-autoStopRds
 billingReports
-cleanOrphanVolumes

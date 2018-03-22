@@ -25,7 +25,7 @@ function loadSettings(defaultSettings) {
 AWS.config.update({region: settings.s3.awsRegion});
 const s3 = new AWS.S3();
 
-exports.handler = function (event, context) {
+exports.handler = function (event, context, callback) {
     const reportPath = calculateReportDirBasedOnDate();
     getManifestFile(reportPath).then(manifestFile => {
         return getZippedReportFile(manifestFile, reportPath);
@@ -37,8 +37,11 @@ exports.handler = function (event, context) {
         return getCurrencyRate(context);
     }).then(() => {
         return sendSlackMessage(context)
+    }).then(() => {
+        callback();
     }).catch(err => {
         console.error('ERROR: ' + err.stack);
+        callback(err.stack);
     });
 
 };
@@ -92,20 +95,21 @@ function constructSlackAttachments(reporter, context) {
     const attachments = [];
     let reportedServicesAmount = 0;
     let subtotalOverspentFlag = false;
-    settings.thresholds.services.forEach(service => {
-        const serviceTotal = reporter.getSingleServiceTotal(service.serviceName);
-        reportedServicesAmount += serviceTotal.amount;
-        const amtWithColor = getConvertedAmountWithColor(context, serviceTotal.amount, service.limit);
+    const servicesToReport = reporter.getServicesToReport(settings.thresholds.breakdownLimit);
+    servicesToReport.forEach(service => {
+        reportedServicesAmount += service.amount;
+        const threshold = settings.thresholds.services.find(tshld => tshld.serviceName === service.serviceName);
+        const amtWithColor = getConvertedAmountWithColor(context, service.amount, threshold ? threshold.limit : null);
         if (amtWithColor.overspentFlag && !subtotalOverspentFlag) {
             subtotalOverspentFlag = true;
         }
-        addAmountAttachment(attachments, amtWithColor.color, serviceTotal.serviceName, constructAmountText(amtWithColor.amount, context), getDangerIconUrl(amtWithColor.overspentFlag));
+        addAmountAttachment(attachments, amtWithColor.color, service.serviceName, constructAmountText(amtWithColor.amount, context), getDangerIconUrl(amtWithColor.overspentFlag));
     });
 
-    const otherServicesAmount = getConvertedAmountWithColor(context, reporter.getTotalAmount() - reportedServicesAmount);
+    const otherServicesAmount = getConvertedAmountWithColor(context, reporter.getGrandTotalAmount() - reportedServicesAmount);
     addAmountAttachment(attachments, settings.slack.colorOther, "Other services", constructAmountText(otherServicesAmount.amount, context), '');
 
-    const totalAmtWithColor = getConvertedAmountWithColor(context, reporter.getTotalAmount(), settings.thresholds.totalLimit);
+    const totalAmtWithColor = getConvertedAmountWithColor(context, reporter.getGrandTotalAmount(), settings.thresholds.totalLimit);
     addAmountAttachment(attachments, totalAmtWithColor.color, "GRAND TOTAL", constructAmountText(totalAmtWithColor.amount, context), getDangerIconUrl(totalAmtWithColor.overspentFlag));
 
     attachments.push({
@@ -138,10 +142,12 @@ function getConvertedAmountWithColor(context, amount, limit) {
     let color;
     let dangerFlag = false;
     const convertedAmt = (amount / context.conversionRate).toFixed(2);
-    if (limit && convertedAmt >= limit) {
+    if (!limit) {
+        color = settings.slack.colorDefault;
+    } else if (convertedAmt >= limit) {
         color = settings.slack.colorDanger;
         dangerFlag = true;
-    } else if (limit && convertedAmt > (limit * settings.thresholds.warningThreshold)) {
+    } else if (convertedAmt > (limit * settings.thresholds.warningThreshold)) {
         color = settings.slack.colorWarning;
     } else {
         color = settings.slack.colorGood;
@@ -166,3 +172,5 @@ function sendSlackMessage(context) {
 }
 
 exports.calculateReportDirBasedOnDate = calculateReportDirBasedOnDate;
+exports.setDefaultConversionRate = setDefaultConversionRate;
+exports.constructSlackAttachments = constructSlackAttachments;
