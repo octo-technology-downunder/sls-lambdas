@@ -174,7 +174,7 @@ Description of parameter groups available for configuration is provided below:
 
 | Parameter group or name | Description |
 | --- | --- |
-| s3 | Group of parameters to configure billing reports location in AWS S3 |
+| s3 | Group of parameters to configure billing reports location in AWS S3. Please follow the AWS instructions on how to enable billing reporting to your s3 bucket: https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-getting-started.html#step-2 |
 | converter | Group of parameters to configure conversion of default USD amount to required currency |
 | slack | Group of parameters to configure Slack notifications |
 | csv | Group of parameters to configure names of columns in billing report csv file to report on |
